@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cybertech360-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cybertech360}
+      POSTGRES_USER: ${POSTGRES_USER:-cybertech360}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cybertech360_dev_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - cybertech360_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cybertech360} -d ${POSTGRES_DB:-cybertech360}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    container_name: cybertech360-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://cybertech360:cybertech360_dev_password@db:5432/cybertech360}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  cybertech360_pgdata:
