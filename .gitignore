@@ -2,3 +2,13 @@
 Thumbs.db
 .vscode/
 .idea/
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.sqlite3
+backend/alembic/versions/__pycache__/
