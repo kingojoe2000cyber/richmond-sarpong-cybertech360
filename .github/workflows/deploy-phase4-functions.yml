@@ -34,6 +34,11 @@ jobs:
         with:
           version: latest
 
+      - name: Deploy Phase 5 database migration
+        run: |
+          supabase link --project-ref "$SUPABASE_PROJECT_ID"
+          supabase db push --yes
+
       - name: Deploy SOC automation
         run: |
           supabase functions deploy soc-automation \
