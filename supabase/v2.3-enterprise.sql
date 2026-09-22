@@ -105,3 +105,23 @@ begin
   end if;
  end loop; return n;
 end $$;
+
+-- PCI DSS 4.0.1 top-level requirement library.
+insert into public.pci_requirements(organization_id,requirement_code,title,description,priority)
+select o.id,x.code,x.title,x.description,'high'
+from public.organizations o
+cross join (values
+('1','Install and Maintain Network Security Controls','Network security controls are implemented and maintained.'),
+('2','Apply Secure Configurations to All System Components','Secure configurations are established and maintained.'),
+('3','Protect Stored Account Data','Stored account data is protected according to PCI DSS requirements.'),
+('4','Protect Cardholder Data with Strong Cryptography During Transmission Over Open, Public Networks','Strong cryptography protects cardholder data in transit.'),
+('5','Protect All Systems and Networks from Malicious Software','Malicious software protections are implemented where applicable.'),
+('6','Develop and Maintain Secure Systems and Software','Secure development and vulnerability management practices are maintained.'),
+('7','Restrict Access to System Components and Cardholder Data by Business Need to Know','Access is restricted according to business need.'),
+('8','Identify Users and Authenticate Access to System Components','Unique identification and authentication controls are implemented.'),
+('9','Restrict Physical Access to Cardholder Data','Physical access to cardholder data and systems is controlled.'),
+('10','Log and Monitor All Access to System Components and Cardholder Data','Logging and monitoring controls support detection and accountability.'),
+('11','Regularly Test Security Systems and Processes','Security systems and processes are tested regularly.'),
+('12','Support Information Security with Organizational Policies and Programs','Security policies, risk management and governance practices are maintained.')
+) as x(code,title,description)
+on conflict (organization_id,requirement_code) do nothing;
