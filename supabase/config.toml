@@ -1,4 +1,12 @@
 # CyberTech 360 Edge Function configuration
+# User-facing functions validate Supabase Auth inside the function with
+# @supabase/server so they remain compatible with current asymmetric JWTs.
+[functions.soc-automation]
+verify_jwt = false
+
+[functions.soc-ai-investigator]
+verify_jwt = false
+
 # The worker is invoked by pg_net/pg_cron with a named Supabase Secret API Key.
 [functions.soc-automation-worker]
 verify_jwt = false
