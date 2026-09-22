@@ -75,7 +75,7 @@ for each row execute function public.refresh_assessment_score();
 do $$
 declare t text;
 begin
-  foreach t in array array['risks','controls','evidence','incidents','assets','vulnerabilities','vendors','audits','assessments','remediations','assessment_items','pci_scope_items'] loop
+  foreach t in array array['risks','controls','evidence','incidents','assets','vulnerabilities','vendors','audits','assessments','remediations','pci_scope_items'] loop
     execute format('drop policy if exists tenant_read_write on public.%I', t);
   end loop;
 end $$;
@@ -124,3 +124,18 @@ create policy organizations_admin_update on public.organizations
 for update to authenticated
 using (id=public.current_org_id() and public.current_role() in ('super_admin','it_admin'))
 with check (id=public.current_org_id());
+
+-- assessment_items has no organization_id; tenant scope is inherited through assessments.
+drop policy if exists assessment_items_tenant_select on public.assessment_items;
+drop policy if exists assessment_items_tenant_insert on public.assessment_items;
+drop policy if exists assessment_items_tenant_update on public.assessment_items;
+drop policy if exists assessment_items_tenant_delete on public.assessment_items;
+create policy assessment_items_tenant_select on public.assessment_items for select to authenticated
+using (assessment_id in (select id from public.assessments where organization_id=public.current_org_id()));
+create policy assessment_items_tenant_insert on public.assessment_items for insert to authenticated
+with check (public.can_write_gcr() and assessment_id in (select id from public.assessments where organization_id=public.current_org_id()));
+create policy assessment_items_tenant_update on public.assessment_items for update to authenticated
+using (public.can_write_gcr() and assessment_id in (select id from public.assessments where organization_id=public.current_org_id()))
+with check (public.can_write_gcr() and assessment_id in (select id from public.assessments where organization_id=public.current_org_id()));
+create policy assessment_items_tenant_delete on public.assessment_items for delete to authenticated
+using (public.can_write_gcr() and assessment_id in (select id from public.assessments where organization_id=public.current_org_id()));
