@@ -257,6 +257,8 @@ declare
   case_no text;
   sla interval;
 begin
+  if not public.v25_soc_ir_can_write(p_org) then raise exception 'forbidden'; end if;
+
   select * into a
   from public.soc_alerts
   where id=p_alert_id and organization_id=p_org
@@ -315,7 +317,7 @@ end;
 $$;
 
 revoke all on function public.create_v25_incident_from_alert(uuid,uuid) from public,anon,authenticated;
-grant execute on function public.create_v25_incident_from_alert(uuid,uuid) to service_role;
+grant execute on function public.create_v25_incident_from_alert(uuid,uuid) to authenticated, service_role;
 
 -- Deterministic status transition and timeline.
 create or replace function public.advance_v25_incident(p_org uuid,p_case_id uuid,p_status text,p_message text default null)
@@ -326,6 +328,7 @@ set search_path=''
 as $$
 declare c public.soc_incident_cases; msg text;
 begin
+  if not public.v25_soc_ir_can_write(p_org) then raise exception 'forbidden'; end if;
   select * into c from public.soc_incident_cases where id=p_case_id and organization_id=p_org for update;
   if not found then raise exception 'incident_case_not_found'; end if;
   if lower(p_status) not in ('new','acknowledged','investigating','contained','eradicated','recovered','closed') then
@@ -347,7 +350,7 @@ end;
 $$;
 
 revoke all on function public.advance_v25_incident(uuid,uuid,text,text) from public,anon,authenticated;
-grant execute on function public.advance_v25_incident(uuid,uuid,text,text) to service_role;
+grant execute on function public.advance_v25_incident(uuid,uuid,text,text) to authenticated, service_role;
 
 -- SLA/escalation worker, intended for cron/worker execution.
 create or replace function public.run_v25_incident_sla(p_org uuid)
