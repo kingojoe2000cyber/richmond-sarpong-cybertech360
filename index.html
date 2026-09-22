@@ -1,88 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Richmond Sarpong CyberTech 360 - Cybersecurity governance, risk, compliance and operations dashboard." />
-  <meta name="theme-color" content="#07111f" />
-  <title>Richmond Sarpong CyberTech 360</title>
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="CyberTech 360 — enterprise cybersecurity governance, risk, compliance and security operations platform.">
+<meta name="theme-color" content="#07111f">
+<title>CyberTech 360 — Enterprise GRC</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="v2.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth.js"></script>
+<script src="data.js"></script>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-mark">RS</div>
-        <div>
-          <strong>CyberTech 360</strong>
-          <small>Richmond Sarpong</small>
-        </div>
-      </div>
-
-      <nav class="nav" aria-label="Primary navigation">
-        <button class="nav-item active" data-view="overview"><span>◫</span> Overview</button>
-        <div class="nav-label">Security Domains</div>
-        <button class="nav-item" data-view="information-security"><span>◈</span> Information Security</button>
-        <button class="nav-item" data-view="cloud-security"><span>☁</span> Cloud Security</button>
-        <button class="nav-item" data-view="security-management"><span>⌘</span> Security Management</button>
-        <button class="nav-item" data-view="network-security"><span>⌁</span> Network Security</button>
-        <button class="nav-item" data-view="application-security"><span>◇</span> Application Security</button>
-        <button class="nav-item" data-view="disaster-recovery"><span>↻</span> Disaster Recovery</button>
-        <button class="nav-item" data-view="incident-management"><span>⚠</span> Incident Management</button>
-        <button class="nav-item" data-view="problem-management"><span>◎</span> Problem Management</button>
-        <div class="nav-label">Management</div>
-        <button class="nav-item" data-view="reports"><span>▤</span> Reports</button>
-        <button class="nav-item" data-view="settings"><span>⚙</span> Settings</button>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="system-status"><span class="pulse"></span><div><strong>All systems operational</strong><small>Last sync: just now</small></div></div>
-        <div class="version">CyberTech 360 • v1.0.0</div>
-      </div>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
-        <div class="search-box">
-          <span>⌕</span>
-          <input id="globalSearch" type="search" placeholder="Search controls, risks, incidents, documents…" aria-label="Search dashboard" />
-          <kbd>Ctrl K</kbd>
-        </div>
-        <div class="top-actions">
-          <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
-          <button class="icon-btn notification" aria-label="Notifications">♢<span class="badge-dot"></span></button>
-          <div class="profile">
-            <div class="avatar">RS</div>
-            <div><strong>Richmond Sarpong</strong><small>Super Administrator</small></div>
-          </div>
-        </div>
-      </header>
-
-      <section id="viewContainer" class="view-container"></section>
-    </main>
-  </div>
-
-  <div class="modal" id="incidentModal" aria-hidden="true">
-    <div class="modal-backdrop" data-close-modal></div>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="incidentModalTitle">
-      <div class="modal-header">
-        <div><p class="eyebrow">Incident Register</p><h2 id="incidentModalTitle">Create security incident</h2></div>
-        <button class="icon-btn" data-close-modal aria-label="Close">×</button>
-      </div>
-      <form id="incidentForm" class="form-grid">
-        <label>Incident title<input name="title" required placeholder="e.g. Suspicious admin login" /></label>
-        <label>Owner<input name="owner" required placeholder="Security Operations" /></label>
-        <label>Severity<select name="severity"><option>Critical</option><option selected>High</option><option>Medium</option><option>Low</option></select></label>
-        <label>Status<select name="status"><option selected>Open</option><option>Investigating</option><option>Contained</option><option>Resolved</option></select></label>
-        <label class="full">Description<textarea name="description" rows="4" placeholder="Brief incident description and known impact"></textarea></label>
-        <div class="form-actions full"><button type="button" class="btn secondary" data-close-modal>Cancel</button><button type="submit" class="btn primary">Save incident</button></div>
-      </form>
-    </div>
-  </div>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js"></script>
+<div id="app"></div>
+<script src="v2.js"></script>
 </body>
 </html>

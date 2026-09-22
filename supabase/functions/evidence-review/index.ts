@@ -1,0 +1,11 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const H={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type"};
+const j=(x,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{...H,"Content-Type":"application/json"}});
+Deno.serve(async req=>{if(req.method==="OPTIONS")return new Response("ok",{headers:H});const t=req.headers.get("Authorization")?.replace(/^Bearer\s+/i,"");if(!t)return j({error:"Authentication required"},401);
+const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_ANON_KEY")!,{global:{headers:{Authorization:"Bearer "+t}}});const {data:{user}}=await db.auth.getUser(t);if(!user)return j({error:"Invalid session"},401);
+const {data:p}=await db.from("profiles").select("id,organization_id,role").eq("id",user.id).single();if(!p)return j({error:"Profile not provisioned"},403);
+if(!["super_admin","grc_manager","security_manager","compliance_officer","auditor"].includes(p.role))return j({error:"Evidence review permission denied"},403);
+const b=await req.json();if(!b.evidence_id||!["approved","rejected","needs_update"].includes(b.decision))return j({error:"Invalid review request"},400);
+const {data,error}=await db.from("evidence_reviews").insert({organization_id:p.organization_id,evidence_id:b.evidence_id,reviewer_id:user.id,decision:b.decision,comments:b.comments||null,reviewed_at:new Date().toISOString()}).select().single();if(error)return j({error:error.message},400);
+await db.from("evidence").update({status:b.decision==="approved"?"approved":b.decision==="rejected"?"rejected":"pending_review",review_date:new Date().toISOString().slice(0,10)}).eq("id",b.evidence_id);
+return j({data});});
