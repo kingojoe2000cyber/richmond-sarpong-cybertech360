@@ -17,18 +17,32 @@ export default {
 
     if (!org) return json({ error: 'organization_id is required' }, 400);
 
-    const { data: profile, error: profileError } = await ctx.supabase
+    const userId = String(ctx.userClaims?.sub || '');
+    if (!userId) return json({ error: 'Authenticated user identity is missing' }, 401);
+
+    // Authorization is checked with the admin client after the user JWT has
+    // already been verified by withSupabase. This avoids a false 403 caused
+    // by profile RLS while still enforcing the exact user -> tenant -> role
+    // relationship before the privileged automation RPC runs.
+    const { data: profile, error: profileError } = await ctx.supabaseAdmin
       .from('profiles')
       .select('id,organization_id,role')
-      .eq('id', ctx.userClaims?.sub)
-      .single();
+      .eq('id', userId)
+      .maybeSingle();
 
-    if (profileError || !profile || profile.organization_id !== org) {
-      return json({ error: 'Organization context is invalid' }, 403);
+    if (profileError) {
+      return json({ error: 'Unable to resolve the authenticated CyberTech 360 profile', detail: profileError.message }, 403);
+    }
+
+    if (!profile || profile.organization_id !== org) {
+      return json({
+        error: 'Organization context is invalid',
+        detail: 'The signed-in user is not provisioned for the requested CyberTech 360 organization.'
+      }, 403);
     }
 
     if (!['super_admin','grc_manager','security_manager','risk_manager','compliance_officer','it_admin','soc_analyst'].includes(profile.role)) {
-      return json({ error: 'SOC automation permission denied' }, 403);
+      return json({ error: 'SOC automation permission denied', role: profile.role }, 403);
     }
 
     if (action === 'run') {
