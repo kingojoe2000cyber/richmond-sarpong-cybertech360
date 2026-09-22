@@ -1,0 +1,8 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const H={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type"};
+Deno.serve(async req=>{if(req.method==="OPTIONS")return new Response("ok",{headers:H});const t=req.headers.get("Authorization")?.replace(/^Bearer\s+/i,"");if(!t)return new Response(JSON.stringify({error:"Authentication required"}),{status:401,headers:H});
+const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_ANON_KEY")!,{global:{headers:{Authorization:"Bearer "+t}}});const {data:{user}}=await db.auth.getUser(t);if(!user)return new Response(JSON.stringify({error:"Invalid session"}),{status:401,headers:H});
+const {data:p}=await db.from("profiles").select("organization_id,role").eq("id",user.id).single();if(!p)return new Response(JSON.stringify({error:"Profile not provisioned"}),{status:403,headers:H});
+const [c,r,e,v]=await Promise.all([db.from("controls").select("control_code,title,status,effectiveness"),db.from("remediations").select("title,priority,status,due_date"),db.from("evidence").select("evidence_code,file_name,status,review_date"),db.from("vendor_risk_summary").select("*")]);
+const out={generated_at:new Date().toISOString(),organization_id:p.organization_id,controls:c.data||[],remediations:r.data||[],evidence:e.data||[],vendors:v.data||[]};
+return new Response(JSON.stringify(out),{headers:{...H,"Content-Type":"application/json","Content-Disposition":"attachment; filename=cybertech360-report.json"}});});
