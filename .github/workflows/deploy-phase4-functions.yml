@@ -1,0 +1,52 @@
+name: Deploy CyberTech 360 Phase 4 Edge Functions
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "supabase/functions/soc-automation/**"
+      - "supabase/functions/soc-ai-investigator/**"
+      - "supabase/functions/soc-automation-worker/**"
+      - ".github/workflows/deploy-phase4-functions.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy SOC automation
+        run: |
+          supabase functions deploy soc-automation \
+            --project-ref "$SUPABASE_PROJECT_ID" \
+            --use-api
+
+      - name: Deploy SOC AI investigator
+        run: |
+          supabase functions deploy soc-ai-investigator \
+            --project-ref "$SUPABASE_PROJECT_ID" \
+            --use-api
+
+      - name: Deploy SOC automation worker
+        run: |
+          supabase functions deploy soc-automation-worker \
+            --project-ref "$SUPABASE_PROJECT_ID" \
+            --use-api
