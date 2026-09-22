@@ -9,6 +9,7 @@ on:
       - "supabase/functions/soc-automation/**"
       - "supabase/functions/soc-ai-investigator/**"
       - "supabase/functions/soc-automation-worker/**"
+      - "supabase/config.toml"
       - ".github/workflows/deploy-phase4-functions.yml"
 
 permissions:
