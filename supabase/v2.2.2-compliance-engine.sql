@@ -113,3 +113,14 @@ end $$;
 
 create index if not exists idx_audit_log_org_created on public.audit_log(organization_id,created_at desc);
 create index if not exists idx_pci_scope_assessment on public.pci_scope_items(assessment_id);
+
+-- Organization administration is restricted to super administrators / IT administrators.
+alter table public.organizations enable row level security;
+drop policy if exists organizations_self_read on public.organizations;
+create policy organizations_self_read on public.organizations
+for select to authenticated using (id=public.current_org_id());
+drop policy if exists organizations_admin_update on public.organizations;
+create policy organizations_admin_update on public.organizations
+for update to authenticated
+using (id=public.current_org_id() and public.current_role() in ('super_admin','it_admin'))
+with check (id=public.current_org_id());
