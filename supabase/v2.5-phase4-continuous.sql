@@ -274,3 +274,23 @@ where a.status not in ('closed','resolved')
 order by severity_rank desc,last_seen_at desc;
 
 select 'V2.5 Phase 4 SOC schema ready' as status;
+
+-- Optional continuous scheduling.
+-- Configure Vault secrets named 'project_url' and 'automation_key' first.
+-- Then uncomment and run:
+--
+-- select cron.schedule(
+--   'ct360-soc-automation',
+--   '*/5 * * * *',
+--   $$
+--   select net.http_post(
+--     url := (select decrypted_secret from vault.decrypted_secrets where name = 'project_url')
+--              || '/functions/v1/soc-automation-worker',
+--     headers := jsonb_build_object(
+--       'Content-Type', 'application/json',
+--       'apikey', (select decrypted_secret from vault.decrypted_secrets where name = 'automation_key')
+--     ),
+--     body := jsonb_build_object('scheduled_at', now())
+--   ) as request_id;
+--   $$
+-- );
