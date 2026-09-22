@@ -470,9 +470,9 @@ begin
       values (
         p_org,
         v_rule_id,
+        fingerprint,
         coalesce(e.event_type,'Security event') ||
           ' — ' || coalesce(e.source,'SIEM'),
-        fingerprint,
         coalesce(e.severity,'medium'),
         'open',
         array[e.id],
