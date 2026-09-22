@@ -80,6 +80,19 @@ begin
   end loop;
 end $$;
 
+-- Remove earlier permissive policies before adding role-aware policies.
+do $
+declare t text;
+begin
+  foreach t in array array['risks','controls','evidence','incidents','assets','vulnerabilities','vendors','audits'] loop
+    execute format('drop policy if exists tenant_isolation on public.%I', t);
+  end loop;
+end $;
+drop policy if exists assessments_tenant on public.assessments;
+drop policy if exists remediations_tenant on public.remediations;
+drop policy if exists assessment_items_tenant on public.assessment_items;
+drop policy if exists pci_scope_tenant on public.pci_scope_items;
+
 -- Replace broad tenant policies with role-aware write policies.
 create or replace function public.can_write_gcr()
 returns boolean language sql stable security definer set search_path=public
