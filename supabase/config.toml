@@ -1,0 +1,4 @@
+# CyberTech 360 Edge Function configuration
+# The worker is invoked by pg_net/pg_cron with a named Supabase Secret API Key.
+[functions.soc-automation-worker]
+verify_jwt = false
